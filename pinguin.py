@@ -1,20 +1,22 @@
-pinguin2024_int = 40_000_000
-geboorte_int = 2_000_000
-
-mensen2023_int = 7_942_645_086
-mensen2024_int = 8_019_876_189
-
-mensgeboorte2023_int = 131_487_375
-menssterfte2023_int = 61_062_674
+import json
 
 
-def groei(nieuw, oud):
-  return (nieuw - oud) / oud
+def edit_json(new_years: list, new_population_data: list) -> None:
+    with open("./static/data.json", "r") as file:
+        data = json.load(file)
+
+    data["years"] = new_years
+    data["populationData"] = new_population_data
+
+    updated_json = json.dumps(data, indent=4)
+
+    with open("./static/data.json", "w") as file:
+        file.write(updated_json)
+
+    print("data.json file has been successfully edited.")
 
 
-groeifactor = groei(mensen2024_int, mensen2023_int)
-pinguin2023_int = pinguin2024_int - pinguin2024_int * groeifactor
+new_years = ["2020", "2021", "2022", "2023", "2024", "2025", "2026"]
+new_population_data = [100, 120, 140, 160, 180, 200, 360]
 
-print(pinguin2023_int)
-
-print("Welkom \n amongus")
+edit_json(new_years, new_population_data)
