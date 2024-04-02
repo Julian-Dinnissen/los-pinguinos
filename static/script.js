@@ -1,3 +1,38 @@
+// async function fetchDataAndSaveLists() {
+//   fetch("./static/data.json")
+//     .then((response) => response.json())
+//     .then((data) => {
+//       // Iterate over each variable
+//       for (let variable in data) {
+//         // Extract years and data for the current variable
+//         const years = data[variable].years;
+//         const variableData = data[variable].data;
+
+//         // Create lists to store years and data for the current variable
+//         const yearsList = [];
+//         const dataList = [];
+
+//         // Push years and data into respective lists
+//         for (let i = 0; i < years.length; i++) {
+//           yearsList.push(years[i]);
+//           dataList.push(variableData[i]);
+//         }
+
+//         // Output the lists
+//         console.log(`${variable}_years: `, yearsList);
+//         console.log(`${variable}_data: `, dataList);
+//       }
+
+//       const varList = [];
+//       for (let variable in data) {
+//         varList.push(variable);
+//       }
+//       console.log(varList);
+//     })
+//     .catch((error) => console.error("Error fetching JSON:", error));
+// }
+// await fetchDataAndSaveLists();
+
 async function fetchData() {
   try {
     const response = await fetch("./static/data.json");
@@ -9,23 +44,34 @@ async function fetchData() {
   }
 }
 
+// await console.log(fetchData());
+
 document.addEventListener("DOMContentLoaded", async function () {
   // Get the canvas element
-  const ctx1 = document.getElementById("totaal").getContext("2d");
-  const ctx2 = document.getElementById("geboorte").getContext("2d");
-  const ctx3 = document.getElementById("sterfte").getContext("2d");
-  const ctx4 = document.getElementById("voedsel").getContext("2d");
-  const ctx5 = document.getElementById("vervuiling").getContext("2d");
-  const ctx6 = document.getElementById("land").getContext("2d");
-  const ctx7 = document.getElementById("diefstal").getContext("2d");
-  const ctx8 = document.getElementById("verdwaling").getContext("2d");
+
+  let divs = [
+    document.getElementById("totaal").getContext("2d"),
+    document.getElementById("geboorte").getContext("2d"),
+    document.getElementById("sterfte").getContext("2d"),
+    document.getElementById("voedsel").getContext("2d"),
+    document.getElementById("vervuiling").getContext("2d"),
+    document.getElementById("land").getContext("2d"),
+    document.getElementById("diefstal").getContext("2d"),
+    document.getElementById("verdwaling").getContext("2d"),
+    document.getElementById("bekering").getContext("2d"),
+  ];
 
   try {
-    // Fetch data from data.json and use destructuring for clarity
-    const { years, populationData } = await fetchData();
+    const data = await fetchData();
+
+    // console.log(data);
+    // console.log(data.Populatie.years);
+
+    const years = data.Populatie.years;
+    const variableData = data.Populatie.data;
 
     // Create the chart
-    const totaal = new Chart(ctx1, {
+    const totaal = new Chart(divs[0], {
       type: "line",
       data: {
         labels: years,
@@ -48,199 +94,33 @@ document.addEventListener("DOMContentLoaded", async function () {
       },
     });
 
-    const geboorte = new Chart(ctx2, {
-      type: "line",
-      data: {
-        labels: years,
-        datasets: [
-          {
-            label: "Geboorte",
-            data: Array(years.length).fill(0), // Initialize data with zeros
-            backgroundColor: "rgba(255, 99, 132, 0.2)",
-            borderColor: "rgba(255, 99, 132, 1)",
-            borderWidth: 1,
-          },
-        ],
-      },
-      options: {
-        scales: {
-          y: {
-            beginAtZero: true,
-          },
-        },
-      },
-    });
-
-    const sterfte = new Chart(ctx3, {
-      type: "line",
-      data: {
-        labels: years,
-        datasets: [
-          {
-            label: "Sterfte",
-            data: Array(years.length).fill(0), // Initialize data with zeros
-            backgroundColor: "rgba(255, 99, 132, 0.2)",
-            borderColor: "rgba(255, 99, 132, 1)",
-            borderWidth: 1,
-          },
-        ],
-      },
-      options: {
-        scales: {
-          y: {
-            beginAtZero: true,
-          },
-        },
-      },
-    });
-
-    const voedsel = new Chart(ctx4, {
-      type: "line",
-      data: {
-        labels: years,
-        datasets: [
-          {
-            label: "Voedselaanbod",
-            data: Array(years.length).fill(0), // Initialize data with zeros
-            backgroundColor: "rgba(255, 99, 132, 0.2)",
-            borderColor: "rgba(255, 99, 132, 1)",
-            borderWidth: 1,
-          },
-        ],
-      },
-      options: {
-        scales: {
-          y: {
-            beginAtZero: true,
-          },
-        },
-      },
-    });
-
-    const vervuiling = new Chart(ctx5, {
-      type: "line",
-      data: {
-        labels: years,
-        datasets: [
-          {
-            label: "Vervuild zeewater",
-            data: Array(years.length).fill(0), // Initialize data with zeros
-            backgroundColor: "rgba(255, 99, 132, 0.2)",
-            borderColor: "rgba(255, 99, 132, 1)",
-            borderWidth: 1,
-          },
-        ],
-      },
-      options: {
-        scales: {
-          y: {
-            beginAtZero: true,
-          },
-        },
-      },
-    });
-
-    const land = new Chart(ctx6, {
-      type: "line",
-      data: {
-        labels: years,
-        datasets: [
-          {
-            label: "Landoppervlakte",
-            data: Array(years.length).fill(0), // Initialize data with zeros
-            backgroundColor: "rgba(255, 99, 132, 0.2)",
-            borderColor: "rgba(255, 99, 132, 1)",
-            borderWidth: 1,
-          },
-        ],
-      },
-      options: {
-        scales: {
-          y: {
-            beginAtZero: true,
-          },
-        },
-      },
-    });
-
-    const diefstal = new Chart(ctx7, {
-      type: "line",
-      data: {
-        labels: years,
-        datasets: [
-          {
-            label: "Gestolen pinguïns",
-            data: Array(years.length).fill(0), // Initialize data with zeros
-            backgroundColor: "rgba(255, 99, 132, 0.2)",
-            borderColor: "rgba(255, 99, 132, 1)",
-            borderWidth: 1,
-          },
-        ],
-      },
-      options: {
-        scales: {
-          y: {
-            beginAtZero: true,
-          },
-        },
-      },
-    });
-
-    const verdwaling = new Chart(ctx8, {
-      type: "line",
-      data: {
-        labels: years,
-        datasets: [
-          {
-            label: "Verdwaalde pinguïns",
-            data: Array(years.length).fill(0), // Initialize data with zeros
-            backgroundColor: "rgba(255, 99, 132, 0.2)",
-            borderColor: "rgba(255, 99, 132, 1)",
-            borderWidth: 1,
-          },
-        ],
-      },
-      options: {
-        scales: {
-          y: {
-            beginAtZero: true,
-          },
-        },
-      },
-    });
-
-    const graphs = [
-      totaal,
-      geboorte,
-      sterfte,
-      voedsel,
-      vervuiling,
-      land,
-      diefstal,
-      verdwaling,
-    ];
-
     const startAnimationButton = document.getElementById("startAnimation");
     let yearIndex = 0;
     let animationInterval;
 
     startAnimationButton.addEventListener("click", () => {
       startAnimationButton.disabled = true;
-      animationInterval = setInterval(animateGraph, 200); // Adjust animation speed (milliseconds)
+      animationInterval = setInterval(animateAllGraphs, 200); // Adjust animation speed (milliseconds)
     });
 
-    function animateGraph() {
+    function animateAllGraphs() {
       if (yearIndex < years.length) {
-        for (let i = 0; i < graphs.length; i++) {
-          graphs[i].data.datasets[0].data[yearIndex] =
-            populationData[yearIndex];
-          graphs[i].update();
-        }
+        graphs.forEach((graph) => {
+          animateGraph(graph);
+        });
+        yearIndex++;
       } else {
         clearInterval(animationInterval);
         startAnimationButton.disabled = false;
       }
     }
+
+    function animateGraph(graph) {
+      graph.data.datasets[0].data[yearIndex] = variableData[yearIndex];
+      graph.update();
+    }
+
+    const graphs = [totaal];
   } catch (error) {
     console.error("Error loading data:", error);
     // Handle the error gracefully, e.g., display an error message to the user

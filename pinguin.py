@@ -20,3 +20,5 @@ new_years = ["2020", "2021", "2022", "2023", "2024", "2025", "2026"]
 new_population_data = [100, 120, 140, 160, 180, 200, 360]
 
 edit_json(new_years, new_population_data)
+
+
