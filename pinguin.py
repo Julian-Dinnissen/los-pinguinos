@@ -263,7 +263,7 @@ def run_server():
 
 
 intro()
-time.sleep(12)
+time.sleep(13)
 webbrowser.open("http://localhost:8000")
 
 with open('./images/message.txt', 'r') as file: # negeer deze code maar dit betekent en doet helemaal niets
