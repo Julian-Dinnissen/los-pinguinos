@@ -5,8 +5,17 @@ import socketserver
 import os
 import time
 
+print(
+    "Welkom bij de pinguin simulatie! \nWij raden u aan uw geluid op een zacht volume te zetten."
+)
+modulatie_jaren: int = 0
+while True:
+    try:
+        modulatie_jaren = int(input("Hoeveel jaar wilt u moduleren? "))
+        break
+    except ValueError:
+        print("Ongeldige invoer. Voer alstublieft een geldig geheel getal in.")
 
-modulatie_jaren: int = int(input("Hoeveel jaar wilt u moduleren? "))
 pinguins: int = 40_000_000
 
 
@@ -16,7 +25,8 @@ variabelen: list = [
     "Gestorven",
     "Verrijkt",
     "Voedsel",
-    "Leefoppervlakte",
+    "Temperatuur stijging",
+    "Overschreden draagkracht in pinguïns",
     "Gestolen pinguins",
     "Verdwaalde pinguins",
 ]
@@ -43,6 +53,7 @@ def changenames(nieuw_namen: list) -> None:
             data, file, indent=4
         )  # indent for pretty printing, you can remove it if you prefer compact JSON
 
+changenames(variabelen)
 
 def changedata(aantal: list, variabel: str) -> None:
     global modulatie_jaren
@@ -179,7 +190,48 @@ def boeddhisme(pinguins) -> list:
     return boedisten
 
 
-boedisten = boeddhisme(pinguins)
+def temperatuur_stijging() -> float:
+    global modulatie_jaren
+    global_temperature_anomaly_2022 = 0.86 # graden celsius
+    global_temperature_anomaly_1980 = 0 # graden celsius
+    verschil = global_temperature_anomaly_2022 - global_temperature_anomaly_1980
+    verschil_per_jaar = verschil / 42 # graden celsius per jaar = 0.020476190476190476
+
+    verschillen = []
+    for i in range(modulatie_jaren):
+        verschillen.append(verschil_per_jaar*i)
+
+    return verschillen
+
+print(temperatuur_stijging())
+
+def pinguin_verlies(temp_stijging: float) -> float:
+    # Berekeningen voor verlies aan ijsvolume en het daaruit voortvloeiende verlies aan pinguïnpopulatie
+    ijs_smelt_snelheid_per_graad = 2.86  # miljard ton ijs per graad temperatuurstijging
+    ijs_smelt_snelheid_basis = 0.84  # miljard ton ijs bij oorspronkelijke temperatuur
+    totaal_ijs_verlies = (ijs_smelt_snelheid_per_graad * temp_stijging) - ijs_smelt_snelheid_basis
+    percentage_ijsverlies = (totaal_ijs_verlies / (24.38 * 10**6)) * 100  # Percentage ijsverlies
+    volume_ijs_m3 = (totaal_ijs_verlies / 0.9) * 10**9  # Volume verloren ijs in kubieke meters
+    oppervlak_ijs_m2 = volume_ijs_m3 / 2200  # Oppervlakte verloren ijs in vierkante meters
+    aantal_pinguins_verlies_per_m2 = 1.46 * 10**-2  # Pinguïnverlies per vierkante meter ijsverlies (correctie: van 1.46 * 10**-4 naar 1.46 * 10**-2)
+    aantal_pinguins_verlies = abs(aantal_pinguins_verlies_per_m2 * oppervlak_ijs_m2)  # Totale pinguïnverlies
+    percentage_pinguinverlies = (aantal_pinguins_verlies / (20 * 10**6)) * 100 # Percentage pinguïnverlies
+    
+    return percentage_pinguinverlies
+
+# Test met temperatuurstijging van 5 graden Celsius
+
+def bereken_pinguin_verlies() -> float:
+    global modulatie_jaren
+
+    ping_vers = []
+
+    for i in range(modulatie_jaren):
+        temp_stijging = temperatuur_stijging()[i]
+        pinguin = pinguin_verlies(temp_stijging) * (natuur(40_000_000)[0][i] - natuur(40_000_000)[1][i])
+        ping_vers.append(pinguin)
+
+    return ping_vers
 
 
 def totalepinguins(pinguins: int, aantaljaar: int) -> list:
@@ -187,6 +239,7 @@ def totalepinguins(pinguins: int, aantaljaar: int) -> list:
     geboren = natuur(pinguins)[0]
     gestolen = diefstal(aantaljaar)
     verdwaalde = verdwaald(aantaljaar)
+
     totaal = []
     for i in range(aantaljaar):
         totaal.append(pinguins)
@@ -196,48 +249,41 @@ def totalepinguins(pinguins: int, aantaljaar: int) -> list:
 
     return totaal
 
+
 def run_server():
-        # Set the port you want to use
     PORT = 8000
-
-    # Get the current directory
     current_dir = os.path.dirname(os.path.abspath(__file__))
-
-    # Change to the directory containing the HTML file
     os.chdir(current_dir)
-
-    # Create a simple HTTP server handler
     Handler = http.server.SimpleHTTPRequestHandler
-
-    # Create the server
     with socketserver.TCPServer(("", PORT), Handler) as httpd:
         print("Server started at localhost:" + str(PORT))
-        # Start the server
         httpd.serve_forever()
-
 
 
 # intro()
 # time.sleep(12)
 webbrowser.open("http://localhost:8000")
 
-with open('./images/message.txt', 'r') as file:
-    # Read the content of the file
+with open('./images/message.txt', 'r') as file: # negeer deze code maar dit betekent en doet helemaal niets
     content = file.read()
-    # Print the content
     print(content)
 
 changedata(totalepinguins(pinguins, modulatie_jaren), variabelen[0])
-changedata(diefstal(modulatie_jaren), variabelen[6])
-changedata(verdwaald(modulatie_jaren), variabelen[7])
 changedata(natuur(pinguins)[0], variabelen[1])
 changedata(natuur(pinguins)[1], variabelen[2])
 
-
-changedata2(biologisch_evenwicht()[0], biologisch_evenwicht()[1], variabelen[4])
 changedata(boeddhisme(pinguins), variabelen[3])
+changedata2(biologisch_evenwicht()[0], biologisch_evenwicht()[1], variabelen[4])
+
+
+changedata(diefstal(modulatie_jaren), variabelen[7])
+changedata(verdwaald(modulatie_jaren), variabelen[8])
+
+changedata(temperatuur_stijging(), variabelen[5])
+changedata(bereken_pinguin_verlies(), variabelen[6])
+
+
+
+
 
 run_server()
-
-
-

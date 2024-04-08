@@ -96,8 +96,8 @@ document.addEventListener("DOMContentLoaded", async function () {
         {
           label: Ids[i],
           data: Array(years_list[i].length).fill(0), // Initialize data with zeros
-          backgroundColor: "rgba(255, 99, 132, 0.2)",
-          borderColor: "rgba(255, 99, 132, 1)",
+          backgroundColor: `rgba(${Math.floor(Math.random() * 256)}, ${Math.floor(Math.random() * 256)}, ${Math.floor(Math.random() * 256)}, ${Math.random()})`,
+          borderColor: `rgba(${Math.floor(Math.random() * 256)}, ${Math.floor(Math.random() * 256)}, ${Math.floor(Math.random() * 256)}, 1)`,
           borderWidth: 1,
         }
       ];
@@ -107,8 +107,8 @@ document.addEventListener("DOMContentLoaded", async function () {
         datasets.push({
           label: `Pinguïns`,
           data: Array(years_list[i].length).fill(0), // Initialize data with zeros
-          backgroundColor: "rgba(53, 176, 255, 0.2)",
-          borderColor: "rgba(53, 176, 255, 1)",
+          backgroundColor: `rgba(${Math.floor(Math.random() * 256)}, ${Math.floor(Math.random() * 256)}, ${Math.floor(Math.random() * 256)}, 0.2)`,
+          borderColor: `rgba(${Math.floor(Math.random() * 256)}, ${Math.floor(Math.random() * 256)}, ${Math.floor(Math.random() * 256)}, 1)`,
           borderWidth: 1,
         });
       }
@@ -145,7 +145,7 @@ document.addEventListener("DOMContentLoaded", async function () {
             } else {
               clearInterval(interval);
             }
-          }, 0); // 10*(200/years_list[8].length)
+          }, 10*(200/years_list[8].length)); // 
         }
       } catch (error) {
         console.error("Error loading data:", error); // Catch all errors, there are no, I'm perfect
