@@ -32,7 +32,6 @@
 //     .catch((error) => console.error("Error fetching JSON:", error));
 // }
 // await fetchDataAndSaveLists();
-
 async function fetchData() {
   try {
     const response = await fetch("./static/data.json");
@@ -44,59 +43,81 @@ async function fetchData() {
   }
 }
 
+
 document.addEventListener("DOMContentLoaded", async function () {
   let Ids = []; // a list of graph names
-  let divs = []; // a list of div elements from html
+  let divs = []; // a list of div elements from HTML
   let years_list = []; // a list of lists of years per variable
   let data_list = []; // a list of lists of data per variable
-
-  const data = await fetchData(); // save the data from the json as a variable
-
-  for (let variable in data) {
-    Ids.push(variable);
-  }
-
-  function createGraphDiv(canvasId) {
-    var graphContainer = document.querySelector(".graph-container");
-    var graphDiv = document.createElement("div");
-    graphDiv.className = "graph";
-
-    var canvas = document.createElement("canvas");
-    canvas.id = canvasId;
-    canvas.width = "400";
-    canvas.height = "200";
-
-    graphDiv.appendChild(canvas);
-    graphContainer.appendChild(graphDiv);
-  } // create the divs in html
-
-  Ids.forEach((id) => {
-    createGraphDiv(id);
-    divs.push(document.getElementById(id).getContext("2d"));
-  }); //store div elements from html
+  let data_list2 = []; // a list of lists of secondary data per variable
 
   try {
+    const response = await fetch("./static/data.json");
+    const data = await response.json();
+
+    for (let variable in data) {
+      Ids.push(variable);
+    }
+
+    function createGraphDiv(canvasId) {
+      var graphContainer = document.querySelector(".graph-container");
+      var graphDiv = document.createElement("div");
+      graphDiv.className = "graph";
+
+      var canvas = document.createElement("canvas");
+      canvas.id = canvasId;
+      canvas.width = "400";
+      canvas.height = "200";
+
+      graphDiv.appendChild(canvas);
+      graphContainer.appendChild(graphDiv);
+    } // create the divs in HTML
+
+    Ids.forEach((id) => {
+      createGraphDiv(id);
+      divs.push(document.getElementById(id).getContext("2d"));
+    }); // store div elements from HTML
+
     for (let variable in data) {
       years_list.push(data[variable].years); // save the years per variable
       data_list.push(data[variable].data); // save the data per variable
+
+      if (data[variable].data2) {
+        data_list2.push(data[variable].data2); // save the secondary data per variable
+      } else {
+        data_list2.push(null); // if there's no secondary data, store null
+      }
     }
 
     const charts = [];
 
-    for (let i = 0; i < divs.length; i++) { 
+    for (let i = 0; i < divs.length; i++) {
+      const datasets = [
+        {
+          label: Ids[i],
+          data: Array(years_list[i].length).fill(0), // Initialize data with zeros
+          backgroundColor: "rgba(255, 99, 132, 0.2)",
+          borderColor: "rgba(255, 99, 132, 1)",
+          borderWidth: 1,
+        }
+      ];
+
+      // If there's secondary data, add it as a separate dataset
+      if (data_list2[i]) {
+        datasets.push({
+          label: `Pinguïns`,
+          data: Array(years_list[i].length).fill(0), // Initialize data with zeros
+          backgroundColor: "rgba(53, 176, 255, 0.2)",
+          borderColor: "rgba(53, 176, 255, 1)",
+          borderWidth: 1,
+        });
+      }
+
       charts[i] = new Chart(divs[i], {
         type: "line",
         data: {
           labels: years_list[i],
-          datasets: [
-            {
-              label: Ids[i],
-              data: Array(years_list[i].length).fill(0), // Initialize data with zeros
-              backgroundColor: "rgba(255, 99, 132, 0.2)",
-              borderColor: "rgba(255, 99, 132, 1)",
-              borderWidth: 1,
-            },
-          ],
+          datasets: datasets,
         },
         options: {
           scales: {
@@ -108,23 +129,28 @@ document.addEventListener("DOMContentLoaded", async function () {
       });
     } // create a chart per variable in Ids
 
-  
-
-    const startAnimationButton = document.getElementById("startAnimation"); //define the button
+    const startAnimationButton = document.getElementById("startAnimation"); // Define the button
     startAnimationButton.addEventListener("click", function () {
-      for (let i = 0; i < data_list.length; i++) {
-        let j = 0;
-        const interval = setInterval(function () {
-          if (j < data_list[i].length) {
-            charts[i].data.datasets[0].data[j] = data_list[i][j];
-            charts[i].update();
-            j++;
-          } else {
-            clearInterval(interval);
-          }
-        }, 10*(200/years_list[8].length));
+      try {
+        for (let i = 0; i < data_list.length; i++) {
+          let j = 0;
+          const interval = setInterval(function () {
+            if (j < data_list[i].length) {
+              charts[i].data.datasets[0].data[j] = data_list[i][j];
+              if (data_list2[i]) {
+                charts[i].data.datasets[1].data[j] = data_list2[i][j];
+              }
+              charts[i].update();
+              j++;
+            } else {
+              clearInterval(interval);
+            }
+          }, 0); // 10*(200/years_list[8].length)
+        }
+      } catch (error) {
+        console.error("Error loading data:", error); // Catch all errors, there are no, I'm perfect
       }
-    }); // update the charts when button is clicked
+    });
   } catch (error) {
     console.error("Error loading data:", error); // catch all errors, there a no, im perfect
   }
