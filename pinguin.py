@@ -203,19 +203,20 @@ def temperatuur_stijging() -> float:
 
     return verschillen
 
-print(temperatuur_stijging())
-
 def pinguin_verlies(temp_stijging: float) -> float:
     # Berekeningen voor verlies aan ijsvolume en het daaruit voortvloeiende verlies aan pinguïnpopulatie
     ijs_smelt_snelheid_per_graad = 2.86  # miljard ton ijs per graad temperatuurstijging
     ijs_smelt_snelheid_basis = 0.84  # miljard ton ijs bij oorspronkelijke temperatuur
-    totaal_ijs_verlies = (ijs_smelt_snelheid_per_graad * temp_stijging) - ijs_smelt_snelheid_basis
+    totaal_ijs_verlies = ijs_smelt_snelheid_basis  # Start met het basisverlies
+    for _ in range(int(temp_stijging)):  # Voeg het ijsverlies bij elke graad toe
+        totaal_ijs_verlies += ijs_smelt_snelheid_per_graad
+    totaal_ijs_verlies += (temp_stijging % 1) * ijs_smelt_snelheid_per_graad  # Voeg het resterende deel toe
     percentage_ijsverlies = (totaal_ijs_verlies / (24.38 * 10**6)) * 100  # Percentage ijsverlies
     volume_ijs_m3 = (totaal_ijs_verlies / 0.9) * 10**9  # Volume verloren ijs in kubieke meters
     oppervlak_ijs_m2 = volume_ijs_m3 / 2200  # Oppervlakte verloren ijs in vierkante meters
-    aantal_pinguins_verlies_per_m2 = 1.46 * 10**-2  # Pinguïnverlies per vierkante meter ijsverlies (correctie: van 1.46 * 10**-4 naar 1.46 * 10**-2)
-    aantal_pinguins_verlies = abs(aantal_pinguins_verlies_per_m2 * oppervlak_ijs_m2)  # Totale pinguïnverlies
-    percentage_pinguinverlies = (aantal_pinguins_verlies / (20 * 10**6)) * 100 # Percentage pinguïnverlies
+    aantal_pinguins_verlies_per_m2 = 1.46 * 10**-4  # Pinguïnverlies per vierkante meter ijsverlies
+    aantal_pinguins_verlies = aantal_pinguins_verlies_per_m2 * oppervlak_ijs_m2  # Totale pinguïnverlies
+    percentage_pinguinverlies = (aantal_pinguins_verlies / (20 * 10**6)) * 100  # Percentage pinguïnverlies
     
     return percentage_pinguinverlies
 
@@ -229,7 +230,7 @@ def bereken_pinguin_verlies() -> float:
     for i in range(modulatie_jaren):
         temp_stijging = temperatuur_stijging()[i]
         pinguin = pinguin_verlies(temp_stijging) * (natuur(40_000_000)[0][i] - natuur(40_000_000)[1][i])
-        ping_vers.append(pinguin)
+        ping_vers.append(int(pinguin))
 
     return ping_vers
 
@@ -239,11 +240,12 @@ def totalepinguins(pinguins: int, aantaljaar: int) -> list:
     geboren = natuur(pinguins)[0]
     gestolen = diefstal(aantaljaar)
     verdwaalde = verdwaald(aantaljaar)
+    verloren = bereken_pinguin_verlies()
 
     totaal = []
     for i in range(aantaljaar):
         totaal.append(pinguins)
-        pinguins += geboren[i] - dood[i] - gestolen[i] - verdwaalde[i]
+        pinguins += geboren[i] - dood[i] - gestolen[i] - verdwaalde[i] - verloren[i]
         if pinguins < 0:
             pinguins = 0
 
@@ -260,8 +262,8 @@ def run_server():
         httpd.serve_forever()
 
 
-# intro()
-# time.sleep(12)
+intro()
+time.sleep(12)
 webbrowser.open("http://localhost:8000")
 
 with open('./images/message.txt', 'r') as file: # negeer deze code maar dit betekent en doet helemaal niets
